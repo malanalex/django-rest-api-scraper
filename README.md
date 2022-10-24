@@ -1,4 +1,105 @@
-# django mini-crawler
+Django REST API Crawler
+========================
+
+### Description
+-   Link scraping API using Django REST Framework;
+-   Custom exception handlers;
+-   Best practices for configuration split and project structure;
+
+## Code quality
+
+### Static analysis
+- Static code analysis used: https://deepsource.io/
+
+### Pylint
+- Pylint used to maintain code quality;
+- Current status: `Your code has been rated at 10.00/10 (previous run: 10.00/10, +0.00)`
+
+### Requirements
+
+-   It is assumed that you have Python. If not, then download the latest versions from:
+    * [Python](https://www.python.org/downloads/)
+    * [PostgreSQL](https://www.postgresql.org/download/)
+	* [Docker](https://www.docker.com/)
+	* [RabbitMQ](https://www.rabbitmq.com/download.html/)
+    
+### Installation
+
+1. **Clone git repository**:
+    ```bash
+    git clone https://github.com/dontpayfull/django-assesment-be-alexmalan.git
+    ```
+
+2. **Create virtual environment**
+	- You can use `virtualenv` or `venv` or conda environment for this.
+    ```bash
+    python -m venv $(pwd)/venv
+    source venv/bin/activate
+    ```
+
+3. **Install requirements**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. **Add environment variables**
+    - Create a file named `.env` in project root directory
+    - Add and fill next environment variables with your local database config:
+        ```.env
+        SECRET_KEY=
+        DATABASE_NAME=
+        DATABASE_USER=
+        DATABASE_PASSWORD=
+        DATABASE_HOST=
+        DATABASE_PORT=
+        ```
+
+5. **Make migrations**:
+    ```bash
+    python manage.py makemigrations
+    ```
+
+6. **Migrate**:
+    ```bash
+    python manage.py migrate
+    ```
+
+## Run
+
+-   Run APP using command:
+    ```bash
+    python manage.py runserver <optional_port_id>
+    ```
+- Localhost resources:
+    * localhost:<port_id>/admin/ - admin login page
+    * localhost:<port_id>/api/page/   - endpoints
+    
+## Postman Configuration
+
+### Library Import
+* Find the djang_crawler.postman_collection.json in the root directory
+- Open Postman
+   - File
+      - Import
+         - Upload files
+            - Open
+
+### Environment Variables
+* Environments
+   - Add
+      - Variable: csrftoken
+      - Type: default
+   - Save
+
+## Files
+* `core` - Django settings files
+* `common/` - Django common functionality
+* `apps/` - Back-end code
+* `venv/` - Virtual environment files used to generate requirements;
+    
+# Logic Requirements
+
+## django mini-crawler
 Urmatorul mini proiect are ca obiectiv evaluarea cunostintelor de backend folosind python, django,   django-rest-framework, celery, docker, docker-compose.
 
 ## Requirement
