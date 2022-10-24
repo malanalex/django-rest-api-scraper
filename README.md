@@ -52,6 +52,8 @@ Django REST API Crawler
         DATABASE_PASSWORD=
         DATABASE_HOST=
         DATABASE_PORT=
+        CELERY_BROKER_URL=
+        CELERY_RESULT_BACKEND=
         ```
 
 5. **Make migrations**:
@@ -65,7 +67,28 @@ Django REST API Crawler
     ```
 
 ## Run
+- The program is designed to run with:
+    * RabbitMQ as a broker
+    * Celery as a task queue
+    * Redis as a result backend
 
+- There are 2 queues:
+    * `download_queue` - for downloading source html code
+    * `parse_queue` - for parsing html
+
+- For each queue we will start a Celery worker. Open 4 Terminals and run one process in each as described below:
+-   Run RabbitMQ using command:
+    ```bash
+    sudo rabbitmq-server
+    ```
+-   Run DOWNLOAD WORKER using command:
+    ```bash
+    celery --app=core.celery worker -Q download_queue -E
+    ```
+-   Run PARSE WORKER using command:
+    ```bash
+    celery --app=core.celery worker -Q parse_queue -E
+    ```
 -   Run APP using command:
     ```bash
     python manage.py runserver <optional_port_id>
@@ -96,7 +119,24 @@ Django REST API Crawler
 * `common/` - Django common functionality
 * `apps/` - Back-end code
 * `venv/` - Virtual environment files used to generate requirements;
-    
+
+## Design Notes
+### Flow
+- The flow of execution goes like this:
+    1. User sends a POST request to the endpoint `/api/page/` with a JSON body containing the URL to be scraped.
+    2. The request is received by the PageCreateView which first validates the payload and duplicates cases for the url.
+    3. If the payload is valid the download_job method is called from /services.
+    4. download_job is running the Celery task (from tasks.py) on the download_queue.
+    5. download_job is validating the result of the Celery task and if it is valid - checking 400/500 HTTP status codes.
+    6. If the task executed successfully, a Page record is created in the Page table.
+    7. The PageCreateView received the html code and is calling the parse_job method from /services.
+    7. parse_job is running the Celery task (from tasks.py) on the parse_queue.
+    9. If the task executed successfully, a batch of PageLink record is created in the PageLink table.
+    10. parse_job is validating the result of the Celery task and if it is valid - checking nr. of links inserted in PageLink matches the total links found in the html code.
+    11. If the validation passes a 200 response is returned to the user.
+
+### Reasoning
+- The reason Celery tasks are called from services is to keep the views as clean as possible and handle the validation within the service layer.
 # Logic Requirements
 
 ## django mini-crawler
