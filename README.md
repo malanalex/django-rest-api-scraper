@@ -77,7 +77,7 @@ Django REST API Crawler
 ## Postman Configuration
 
 ### Library Import
-* Find the djang_crawler.postman_collection.json in the root directory
+* Find the django-rest-crawler.postman_collection.json in the root directory
 - Open Postman
    - File
       - Import
