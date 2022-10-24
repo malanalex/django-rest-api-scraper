@@ -39,7 +39,7 @@ class Page(BaseClass):
         verbose_name_plural = "Pages"
 
     def __str__(self):
-        return f'URL: {self.url}'
+        return f"URL: {self.url}"
 
     def __repr__(self) -> str:
         return f"Page: {self.url}"
@@ -69,7 +69,7 @@ class PageLink(BaseClass):
         verbose_name_plural = "PageLinks"
 
     def __str__(self):
-        return f'URL: {self.href}'
+        return f"URL: {self.href}"
 
     def __repr__(self) -> str:
-        return f'Page Link: {self.url}'
+        return f"Page Link: {self.url}"

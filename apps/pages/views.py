@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from .models import Page
 from .serializers import PageSerializer
-from .services import get_data, parse_data
+from .services import download_job, parse_job
 
 
 class PagesListView(generics.ListAPIView):
@@ -29,41 +29,38 @@ class PageCreateView(generics.CreateAPIView):
     model = Page
     serializer_class = PageSerializer
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """
         Create page.
         """
-        try:
-            if not request.data:
-                raise ValidationError("Invalid input. No data provided.")
-            if (
-                not isinstance(request.data["url"], str)
-                or "url" not in request.data.keys()
-            ):
-                raise ValidationError("Invalid input. Please provide a string url.")
+        # validate payload
+        if not request.data:
+            raise ValidationError("Invalid input. No data provided.")
+        if not isinstance(request.data["url"], str) or "url" not in request.data.keys():
+            raise ValidationError("Invalid input. Please provide a string url.")
 
-            data = get_data(request.data["url"])
+        # validate duplicate url
+        page_status = Page.objects.filter(url=request.data["url"]).first()
+        if page_status:
+            return Response(
+                {"message": "Page already exists."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            if data:
-                page_id = Page.objects.filter(url=request.data["url"]).first().id
-                parsed_data = parse_data(data, page_id)
-
-            if parsed_data:
+        # run download job
+        download_job_run = download_job(request.data["url"])
+        if download_job_run:
+            # run parse job
+            parse_job_status = parse_job(download_job_run[0], download_job_run[1])
+            if parse_job_status:
                 return Response(
                     {"message": "Page successfully created and parsed."},
                     status=status.HTTP_201_CREATED,
                 )
-            if isinstance(parsed_data, int):
-                return Response(
-                    {"message": "There were no links found on this page."},
-                    status=status.HTTP_200_OK,
-                )
-            return Response(
-                {"message": "Something went wrong with the scraper. Please try again."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        except Exception:
-            raise ValidationError("Something went wrong. Please try again.")
+        return Response(
+            {"message": "Something went wrong. Please try again."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class PageUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
