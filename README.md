@@ -81,6 +81,10 @@ Django REST API Crawler
     ```bash
     sudo rabbitmq-server
     ```
+-   Run Redis using command:
+    ```bash
+    brew services start redis
+    ```   
 -   Run DOWNLOAD WORKER using command:
     ```bash
     celery --app=core.celery worker -Q download_queue -E
