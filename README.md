@@ -129,6 +129,18 @@ Django REST API Crawler
 * `apps/` - Back-end code
 * `venv/` - Virtual environment files used to generate requirements;
 
+## Test
+Run command:
+* python manage.py test -k --verbosity 2
+* python manage.py test {app_name} -k --verbosity 2
+    * [Important] 
+        * To use same database for test and development `-k ( -keepdb )`
+            - otherwise, django will try to create a separate new db '{db_name}_test'
+        * Optional `--verbosity 2`
+            - displays the result foreach test
+        * If tests are not working make sure all migrations are done : 
+            `python manage.py migrate`
+
 ## Design Notes
 ### Flow
 - The flow of execution goes like this:

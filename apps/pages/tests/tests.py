@@ -10,9 +10,9 @@ from apps.pages.models import Page, PageLink
 from apps.pages.tasks import crawl_data, parse_data
 
 
-class PageServiceTests(APITestCase):
+class PageServiceTaskTests(APITestCase):
     """
-    Test services
+    Test task services.
     """
 
     page_1 = {
