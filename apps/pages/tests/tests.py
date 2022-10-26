@@ -2,9 +2,9 @@
 Unit tests for the pages app.
 """
 from pathlib import Path
-from django.urls import reverse
 
 import lxml.html
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from apps.pages.models import Page, PageLink
@@ -74,7 +74,7 @@ class PageTests(APITestCase):
         self.assertEqual(response, page_links)
 
         page_updated = Page.objects.filter(id=page.id).first()
-        self.assertEqual(page_updated.stats['total_links'], page_links)
+        self.assertEqual(page_updated.stats["total_links"], page_links)
 
     def test_delete_success(self):
         """
@@ -93,7 +93,7 @@ class PageTests(APITestCase):
         response = self.client.delete(page_delete, format="json")
 
         self.assertTrue(response.status_code, 204)
-    
+
     def test_update_success(self):
         """
         Test update page.
@@ -122,10 +122,14 @@ class PageTests(APITestCase):
         Test list pages.
         """
         # save page to db
-        page_1 = Page(url=self.page_1["url"], stats={"total_links": 0, "unique_links": 0})
+        page_1 = Page(
+            url=self.page_1["url"], stats={"total_links": 0, "unique_links": 0}
+        )
         page_1.save()
 
-        page_2 = Page(url=self.page_2["url"], stats={"total_links": 0, "unique_links": 0})
+        page_2 = Page(
+            url=self.page_2["url"], stats={"total_links": 0, "unique_links": 0}
+        )
         page_2.save()
 
         # check page exists
@@ -141,7 +145,5 @@ class PageTests(APITestCase):
 
         self.assertTrue(response.status_code, 200)
         self.assertEqual(len(res_json), 2)
-        self.assertEqual(res_json[0]['url'], self.page_1['url'])
-        self.assertEqual(res_json[1]['url'], self.page_2['url'])
-
-
+        self.assertEqual(res_json[0]["url"], self.page_1["url"])
+        self.assertEqual(res_json[1]["url"], self.page_2["url"])
