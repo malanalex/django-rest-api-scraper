@@ -119,7 +119,6 @@ Django REST API Crawler
    - Save
 
 ### Run tips
-- Run pages with http not https
 - Try not to run the same page multiple times since you might get a 511(Network Authentication Required)
 - You might get blocked for multi-requests to the same site as this app does not use PROXYs
 - For Proxy please check: https://www.zyte.com/
