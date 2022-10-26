@@ -66,3 +66,6 @@ class PageServiceTests(APITestCase):
 
         page_links = PageLink.objects.count()
         self.assertEqual(response, page_links)
+
+        page_updated = Page.objects.filter(id=page.id).first()
+        self.assertEqual(page_updated.stats['total_links'], page_links)
