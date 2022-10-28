@@ -7,7 +7,10 @@ Django REST API Crawler
 -   Best practices for configuration split and project structure;
 
 ### Important
--   There is an issue with Docker if you are using a M1/M2 Macbook which is why you have to force the config: --platform=linux/amd64
+-  This implementation is not production ready, it's just a proof of concept;
+-  This implementation lacks the notification features so that the user will be notified of the task status - fail/succeed
+-  This implementation also lacks a tracking system for failed tasks and also a retry mechanism;
+-  There is an issue with Docker if you are using a M1/M2 Macbook which is why you have to force the config: --platform=linux/amd64
 
 ## Code quality
 
@@ -151,12 +154,5 @@ Run command:
     2. The request is received by the PageCreateView which first validates the payload and duplicates cases for the url.
     3. If the payload is valid the scrape_job task is called from /tasks.
     4. The scrape_job task is responsible for downloading the HTML of the URL and parsing it for links by chaining the crawl_data and parse_data tasks.
-    6. If the task executed successfully, a Page record is created in the Page table.
-    7. The PageCreateView received the html code and is calling the parse_job method from /services.
-    7. parse_job is running the Celery task (from tasks.py) on the parse_queue.
-    9. If the task executed successfully, a batch of PageLink record is created in the PageLink table.
-    10. parse_job is validating the result of the Celery task and if it is valid - checking nr. of links inserted in PageLink matches the total links found in the html code.
-    11. If the validation passes a 200 response is returned to the user.
-
-### Reasoning
-- The reason Celery tasks are called from services is to keep the views as clean as possible and handle the validation within the service layer.
+    5. If the task executed successfully, a Page record is created in the Page table and a batch of PageLink record is created in the PageLink table.
+    6. The user received a 204 response.
