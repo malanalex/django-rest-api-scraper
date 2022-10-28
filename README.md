@@ -7,9 +7,10 @@ Django REST API Crawler
 -   Best practices for configuration split and project structure;
 
 ### Important
--  This implementation is not production ready, it's just a proof of concept;
--  This implementation lacks the notification features so that the user will be notified of the task status - fail/succeed
+-  *This implementation is not production ready, it's just a proof of concept*
+-  This implementation lacks the notification features so that the user will be notified of the task status - fail/succeed (The task is sent in the background so you will get a 400 only if the page is duplicate or payload invalid)
 -  This implementation also lacks a tracking system for failed tasks and also a retry mechanism;
+-  The fail mechanism should handle the exceptions in the tasks and retry them for x times. At the moment you are only able to check the status by checking the logs of Celery.
 -  There is an issue with Docker if you are using a M1/M2 Macbook which is why you have to force the config: --platform=linux/amd64
 
 ## Code quality
