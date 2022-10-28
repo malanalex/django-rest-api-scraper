@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from .models import Page
 from .serializers import PageSerializer
-from .services import download_job, parse_job
+from .tasks import scraping_job
 
 
 class PagesListView(generics.ListAPIView):
@@ -33,30 +33,22 @@ class PageCreateView(generics.CreateAPIView):
         """
         Create page.
         """
-        # validate payload
-        if not request.data:
-            raise ValidationError("Invalid input. No data provided.")
-        if not isinstance(request.data["url"], str) or "url" not in request.data.keys():
-            raise ValidationError("Invalid input. Please provide a string url.")
-
-        # validate duplicate url
-        page_status = Page.objects.filter(url=request.data["url"]).first()
-        if page_status:
+        payload_valid = PageSerializer(data=request.data).is_valid()
+        page_duplicate = PageSerializer(data=request.data).check_duplicate_url(
+            request.data["url"]
+        )
+        if page_duplicate:
             return Response(
                 {"message": "Page already exists."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # run download job
-        download_job_run = download_job(request.data["url"])
-        if download_job_run:
-            # run parse job
-            parse_job_status = parse_job(download_job_run[0], download_job_run[1])
-            if parse_job_status:
-                return Response(
-                    {"message": "Page successfully created and parsed."},
-                    status=status.HTTP_201_CREATED,
-                )
+        if payload_valid:
+            scraping_job(request.data["url"])
+            return Response(
+                {"message": "Page successfully submitted."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
         return Response(
             {"message": "Something went wrong. Please try again."},
             status=status.HTTP_400_BAD_REQUEST,

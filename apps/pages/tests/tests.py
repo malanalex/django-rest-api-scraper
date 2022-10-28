@@ -13,7 +13,7 @@ from apps.pages.tasks import crawl_data, parse_data
 
 class PageTests(APITestCase):
     """
-    Test page services and endpoints.
+    Test page tasks and endpoints.
     """
 
     page_1 = {

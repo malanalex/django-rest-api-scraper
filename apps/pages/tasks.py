@@ -4,9 +4,14 @@ Celery tasks module.
 from __future__ import absolute_import, unicode_literals
 
 import random
+import string
+from typing import Union
 
 import lxml.html
 import requests
+from celery import chain
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.utils import timezone
 from requests.adapters import HTTPAdapter, Retry
 from rest_framework.exceptions import ValidationError
@@ -17,8 +22,23 @@ from core.celery import app
 from .models import Page, PageLink
 
 
+@app.task
+def scraping_job(url: str):
+    """
+    Download and extract data from url.
+
+    :param str url: Url to be scraped
+    """
+    ch = chain(
+        crawl_data.s(url).set(queue="download_queue"),
+        parse_data.s().set(queue="parse_queue"),
+    ).apply_async(countdown=0.1)
+
+    return ch
+
+
 @app.task(queue="download_queue")
-def crawl_data(url: str) -> str:
+def crawl_data(url: str) -> Union[str, int]:
     """
     Scrape html data.
 
@@ -32,15 +52,32 @@ def crawl_data(url: str) -> str:
         s.mount("http://", HTTPAdapter(max_retries=retries))
         response = s.get(url=url, headers=random.choice(headers_list))
 
-        return (response.text, response.status_code)
-    except Exception:
-        raise ValidationError(
-            "Something went wrong with the scraper. Please try again."
-        )
+        if response.status_code == 200:
+            # save page instance
+            page = Page(url=url, stats={"total_links": 0, "unique_links": 0})
+            page.save()
+
+            # save file contents
+            file_name = "".join(
+                random.choices(
+                    (string.ascii_lowercase + string.ascii_uppercase + string.digits),
+                    k=10,
+                )
+            )
+            path = default_storage.save(
+                f"download_data/{file_name}.txt", ContentFile(response.text)
+            )
+
+            if isinstance(path, str) and isinstance(page.id, int):
+                return path, page.id
+            raise
+        raise
+    except Exception as e:
+        raise ValidationError(f"Something went wrong with the scraper : {str(e)}")
 
 
 @app.task(queue="parse_queue")
-def parse_data(html_str: str, page_id: int) -> list:
+def parse_data(data: Union[str, int]) -> int:
     """
     Parse html data.
 
@@ -48,21 +85,25 @@ def parse_data(html_str: str, page_id: int) -> list:
     :param int page_id: scraped page pk
     """
     try:
-        # parse html
-        tree = lxml.html.fromstring(html_str)
-        tag_parse = tree.xpath("//a")
+        path, page_id = data
         links = []
+        if default_storage.exists(path):
+            html_str = default_storage.open(path).read()
 
-        # get page
-        page = Page.objects.filter(id=page_id).first()
+            # parse html
+            tree = lxml.html.fromstring(html_str)
+            tag_parse = tree.xpath("//a")
 
-        # get all links details
-        for link in tag_parse:
-            if "href" in link.attrib:
-                href = link.get("href")
-                rel = link.get("rel") or None
-                title = link.get("title") or None
-                links.append(PageLink(href=href, rel=rel, title=title, page=page))
+            # get page
+            page = Page.objects.filter(id=page_id).first()
+
+            # get all links details
+            for link in tag_parse:
+                if "href" in link.attrib:
+                    href = link.get("href")
+                    rel = link.get("rel") or None
+                    title = link.get("title") or None
+                    links.append(PageLink(href=href, rel=rel, title=title, page=page))
 
         # bulk create page links
         if len(links) > 0:
@@ -79,7 +120,8 @@ def parse_data(html_str: str, page_id: int) -> list:
 
             # empty data structure
             links = []
+            default_storage.delete(path)
             return len(total_insertions)
-        return False
-    except Exception:
-        raise ValidationError("Something went wrong with parsing. Please try again.")
+        return 0
+    except Exception as e:
+        raise ValidationError(f"Something went wrong with the parser : {str(e)}")

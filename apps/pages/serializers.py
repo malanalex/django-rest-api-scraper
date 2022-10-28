@@ -6,13 +6,25 @@ from rest_framework import serializers
 from .models import Page, PageLink
 
 
+class PageLinkSerializer(serializers.ModelSerializer):
+    """
+    Page link serializer.
+    """
+
+    class Meta:
+        """
+        Meta class.
+        """
+        model = PageLink
+        fields = "__all__"
+
+
 class PageSerializer(serializers.ModelSerializer):
     """
     Page serializer.
     """
 
-    # list of all links related to this page
-    links = serializers.SerializerMethodField()
+    links = PageLinkSerializer(many=True, read_only=True)
 
     class Meta:
         """
@@ -30,10 +42,8 @@ class PageSerializer(serializers.ModelSerializer):
             "links",
         )
 
-    def get_links(self, obj):
+    def check_duplicate_url(self, url):
         """
-        Get all links related to this page.
+        Check if url already exists.
         """
-        return PageLink.objects.filter(page=obj).values(
-            "id", "href", "rel", "title", "added_at"
-        )
+        return Page.objects.filter(url=url).first()

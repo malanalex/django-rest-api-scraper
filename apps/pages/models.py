@@ -57,6 +57,7 @@ class PageLink(BaseClass):
     page = models.ForeignKey(
         Page,
         on_delete=models.CASCADE,
+        related_name="links",
     )
 
     class Meta:

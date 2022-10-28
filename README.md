@@ -146,9 +146,8 @@ Run command:
 - The flow of execution goes like this:
     1. User sends a POST request to the endpoint `/api/page/` with a JSON body containing the URL to be scraped.
     2. The request is received by the PageCreateView which first validates the payload and duplicates cases for the url.
-    3. If the payload is valid the download_job method is called from /services.
-    4. download_job is running the Celery task (from tasks.py) on the download_queue.
-    5. download_job is validating the result of the Celery task and if it is valid - checking 400/500 HTTP status codes.
+    3. If the payload is valid the scrape_job task is called from /tasks.
+    4. The scrape_job task is responsible for downloading the HTML of the URL and parsing it for links by chaining the crawl_data and parse_data tasks.
     6. If the task executed successfully, a Page record is created in the Page table.
     7. The PageCreateView received the html code and is calling the parse_job method from /services.
     7. parse_job is running the Celery task (from tasks.py) on the parse_queue.
@@ -156,8 +155,6 @@ Run command:
     10. parse_job is validating the result of the Celery task and if it is valid - checking nr. of links inserted in PageLink matches the total links found in the html code.
     11. If the validation passes a 200 response is returned to the user.
 
-### Reasoning
-- The reason Celery tasks are called from services is to keep the views as clean as possible and handle the validation within the service layer.
 # Logic Requirements
 
 ## django mini-crawler
