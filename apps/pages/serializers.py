@@ -15,6 +15,7 @@ class PageLinkSerializer(serializers.ModelSerializer):
         """
         Meta class.
         """
+
         model = PageLink
         fields = "__all__"
 

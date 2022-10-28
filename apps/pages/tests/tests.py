@@ -2,6 +2,7 @@
 Unit tests for the pages app.
 """
 from pathlib import Path
+import shutil
 
 import lxml.html
 from django.urls import reverse
@@ -26,8 +27,6 @@ class PageTests(APITestCase):
         "url": "https://www.yahoo.com/",
     }
 
-    common_tags = ["html", "body", "p", "div"]
-
     def setUp(self):
         pass
 
@@ -38,18 +37,18 @@ class PageTests(APITestCase):
         """
         Page crawl task success.
         """
-        response = crawl_data(self.page_1["url"])
-
-        self.assertEqual(response[1], 200)
-
-        for tag in self.common_tags:
-            self.assertTrue(tag in response[0])
+        path, pageid = crawl_data(self.page_1["url"])
+        page = Page.objects.filter(url=self.page_1["url"]).first()
+        self.assertEqual(pageid, page.id)
+        self.assertTrue(isinstance(path, str))
 
     def test_parse_data_success(self):
         """
         Page parse task success.
         """
         path = Path(__file__).parent / "test_data/html_test.txt"
+        from_path = Path(__file__).parent / "html_test.txt"
+        to_path = Path(__file__).parent / "test_data/html_test.txt"
 
         # save page to db
         page = Page(url=self.page_1["url"], stats={"total_links": 0, "unique_links": 0})
@@ -64,8 +63,8 @@ class PageTests(APITestCase):
         tag_parse = tree.xpath("//a")
         links_found = len(tag_parse)
 
-        # pase html data
-        response = parse_data(html_data, page.id)
+        data = path, page.id
+        response = parse_data(data)
 
         # compare the number of links found
         self.assertEqual(response, links_found)
@@ -75,6 +74,8 @@ class PageTests(APITestCase):
 
         page_updated = Page.objects.filter(id=page.id).first()
         self.assertEqual(page_updated.stats["total_links"], page_links)
+
+        shutil.copy(from_path, to_path)
 
     def test_delete_success(self):
         """

@@ -7,7 +7,7 @@ profile=no
 ignore=.git,migrations,tests
 
 [MESSAGES CONTROL]
-disable=E1101, R0903, C0103, E0015, R1718, W0707
+disable=E1101, R0903, C0103, E0015, R1718, W0707, E0704
 
 [FORMAT]
 

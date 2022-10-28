@@ -3,7 +3,7 @@ static/*
 
 ### Python ###
 __pycache__/
-
+download_data/
 ### PyCharm ###
 *.idea/
 *.env
