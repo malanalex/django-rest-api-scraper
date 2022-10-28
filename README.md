@@ -6,6 +6,9 @@ Django REST API Crawler
 -   Custom exception handlers;
 -   Best practices for configuration split and project structure;
 
+### Important
+-   There is an issue with Docker if you are using a M1/M2 Macbook which is why you have to force the config: --platform=linux/amd64
+
 ## Code quality
 
 ### Static analysis
