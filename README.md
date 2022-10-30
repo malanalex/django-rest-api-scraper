@@ -84,6 +84,7 @@ Django REST API Crawler
     * RabbitMQ as a broker
     * Celery as a task queue
     * Redis as a result backend
+    * Flower as task monitoring
 
 - There are 2 queues:
     * `download_queue` - for downloading source html code
