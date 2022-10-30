@@ -43,8 +43,8 @@ def scraping_job(url: str):
     base=LogErrorsTask,
     queue="download_queue",
     autoretry_for=(Exception,),
-    max_retry=2,
-    default_retry_delay=3,
+    max_retry=3,
+    retry_backoff=True,
 )
 def crawl_data(url: str) -> Union[str, int]:
     """
@@ -88,8 +88,8 @@ def crawl_data(url: str) -> Union[str, int]:
     base=LogErrorsTask,
     queue="parse_queue",
     autoretry_for=(Exception,),
-    max_retry=2,
-    default_retry_delay=2,
+    max_retry=3,
+    retry_backoff=True,
 )
 def parse_data(data: Union[str, int]) -> int:
     """

@@ -97,7 +97,12 @@ Django REST API Crawler
 -   Run Redis using command:
     ```bash
     brew services start redis
+    ```  
+-   Run Flower monitoring using command:
+    ```bash
+    celery -A crawler flower
     ```   
+    * Flower will be available at http://localhost:5555/
 -   Run DOWNLOAD WORKER using command:
     ```bash
     celery --app=core.celery worker -Q download_queue -E
