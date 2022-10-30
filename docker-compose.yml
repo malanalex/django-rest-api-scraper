@@ -77,5 +77,20 @@ services:
             - 15672:15672
         expose:
             - 5672
+    flower:
+        image: mher/flower
+        build: .
+        restart: always
+        command: ['celery', '--broker=${CELERY_BROKER_URL}', 'flower',]
+        ports:
+            - 5555:5555
+        expose:
+            - 5555
+        environment:
+            - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+            - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+        depends_on:
+            - redis
+            - rabbitmq
 volumes:
     pgdata:
