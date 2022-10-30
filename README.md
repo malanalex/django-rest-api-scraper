@@ -40,7 +40,7 @@ Django REST API Crawler
 
 1. **Clone git repository**:
     ```bash
-    git clone https://github.com/dontpayfull/django-assesment-be-alexmalan.git
+    git clone https://github.com/alexmalan/django-rest-api-scraper.git
     ```
 
 2. **Create virtual environment**
