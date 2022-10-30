@@ -4,15 +4,21 @@ Django REST API Crawler
 ### Description
 -   Link scraping API using Django REST Framework;
 -   Custom exception handlers;
+-   Flower implementation for task monitoring;
+-   Task retry with exponential backoff;
+-   Logging with custom base logger;
 -   Best practices for configuration split and project structure;
 
 ### Important
 -  *This implementation is not production ready, it's just a proof of concept*
--  This implementation lacks the notification features so that the user will be notified of the task status - fail/succeed (The task is sent in the background so you will get a 400 only if the page is duplicate or payload invalid)
--  This implementation also lacks a tracking system for failed tasks and also a retry mechanism;
--  The fail mechanism should handle the exceptions in the tasks and retry them for x times. At the moment you are only able to check the status by checking the logs of Celery.
 -  There is an issue with Docker if you are using a M1/M2 Macbook which is why you have to force the config: --platform=linux/amd64
 
+### Possible improvements
+-  Enhanced error tracking with Sentry;
+-  Validation of the URLs + duplicate checks;
+-  Better scraping and requests mechanism;
+-  Further scraping options - with the current links as a starting point;
+ 
 ## Code quality
 
 ### Static analysis

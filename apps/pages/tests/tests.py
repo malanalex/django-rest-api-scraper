@@ -1,8 +1,8 @@
 """
 Unit tests for the pages app.
 """
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import lxml.html
 from django.urls import reverse

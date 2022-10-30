@@ -16,10 +16,12 @@ from django.utils import timezone
 from requests.adapters import HTTPAdapter, Retry
 from rest_framework.exceptions import ValidationError
 
+from apps.pages.models import Page, PageLink
+from apps.pages.tasks.task_base import LogErrorsTask
 from common.headers import headers_list
 from core.celery import app
 
-from .models import Page, PageLink
+from .task_base import LogErrorsTask
 
 
 @app.task
@@ -37,7 +39,13 @@ def scraping_job(url: str):
     return ch
 
 
-@app.task(queue="download_queue")
+@app.task(
+    base=LogErrorsTask,
+    queue="download_queue",
+    autoretry_for=(Exception,),
+    max_retry=2,
+    default_retry_delay=3,
+)
 def crawl_data(url: str) -> Union[str, int]:
     """
     Scrape html data.
@@ -76,7 +84,13 @@ def crawl_data(url: str) -> Union[str, int]:
         raise ValidationError(f"Something went wrong with the scraper : {str(e)}")
 
 
-@app.task(queue="parse_queue")
+@app.task(
+    base=LogErrorsTask,
+    queue="parse_queue",
+    autoretry_for=(Exception,),
+    max_retry=2,
+    default_retry_delay=2,
+)
 def parse_data(data: Union[str, int]) -> int:
     """
     Parse html data.

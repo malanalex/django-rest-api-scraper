@@ -3,21 +3,9 @@ Page serializer.
 """
 from rest_framework import serializers
 
-from .models import Page, PageLink
+from apps.pages.models import Page
 
-
-class PageLinkSerializer(serializers.ModelSerializer):
-    """
-    Page link serializer.
-    """
-
-    class Meta:
-        """
-        Meta class.
-        """
-
-        model = PageLink
-        fields = "__all__"
+from .pagelink_serializer import PageLinkSerializer
 
 
 class PageSerializer(serializers.ModelSerializer):

@@ -5,9 +5,9 @@ from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from .models import Page
-from .serializers import PageSerializer
-from .tasks import scraping_job
+from apps.pages.models import Page
+from apps.pages.serializers import PageSerializer
+from apps.pages.tasks import scraping_job
 
 
 class PagesListView(generics.ListAPIView):
