@@ -79,7 +79,8 @@ Django REST API Crawler
     python manage.py migrate
     ```
 
-## Run
+## Run Local
+- The following instructions will help you run the program on local machine.
 - The program is designed to run with:
     * RabbitMQ as a broker
     * Celery as a task queue
@@ -119,7 +120,46 @@ Django REST API Crawler
 - Localhost resources:
     * localhost:<port_id>/admin/ - admin login page
     * localhost:<port_id>/api/page/   - endpoints
-    
+
+## Run Docker
+- The following instructions will help you run the program on docker.
+- The Docker will run the following:
+    * Django server
+    * RabbitMQ as a broker
+    * Redis as backend
+    * Worker1 Celery as parse_queue
+    * Worker2 Celery as download_queue
+    * Postgres as database
+    * Flower as task monitoring
+    * PgAdmin as a database management tool
+
+- For each queue we will start a Celery worker. Open 4 Terminals and run one process in each as described below:
+-   Run Docker buil using command:
+    ```bash
+    docker build .
+    ```
+-   Run Docker Compose using command:
+    ```bash
+    docker-compose up -d
+    ```  
+-   The application should run now
+    * Flower will be available at http://localhost:5555/
+    * PgAdmin will be available at http://localhost:5050/
+        * username: admin@admin.com
+        * password: root
+        - You can add a new server:
+            - Register > Server
+                - General:
+                    * Name: postgres
+                - Connection:
+                    * Host name/address: DATABASE_HOST from .env
+                    * Port: DATABASE_PORT from .env
+                    * Maintenance database: postgres
+                    * Username: DATABASE_USER from .env
+                    * Password: DATABASE_PASSWORD from .env
+                - Save
+        - You can query the tables:
+            - postgres > Schemas > public > Tables > table > View/Edit data > All rows
 ## Postman Configuration
 
 ### Library Import
@@ -129,6 +169,9 @@ Django REST API Crawler
       - Import
          - Upload files
             - Open
+
+#### Note
+- There are the LOCAL and DOCKER endpoint options
 
 ### Environment Variables
 * Environments
